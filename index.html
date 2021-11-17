@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang = "en" dir="ltr">
+    <head>
+        
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js'></script>
+        <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.0/chart.min.js'></script>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="mystyle.css">
+
+        <title>VE REDES</title>
+
+    </head>
+    <body>   
+
+        <h1>Monitoramento de Temperatura e Umidade</h1>
+        <div class="container">
+            <div class="row">
+                <div class="col-6 chart">
+                    <canvas id="myChart" width="500" height="400"></canvas>
+                </div>
+                <div class="col-6 chart">
+                    <canvas id="myChart2" width="500" height="400"></canvas>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 chart">
+                    <canvas id="myChart3" width="500" height="400"></canvas>
+                </div>
+                <div class="col-6 chart">
+                    <canvas id="myChart4" width="500" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+
+
+        <div >
+        <header>
+            
+        <h1 style="left: 640px; position: relative;"><u>Monitoramento</u> </h1>
+        </header>
+
+        <br><br><br>
+
+        <div>
+
+           
+        <h2 style="left: 650px; position: relative;" >Temperatura Sala 1: </h2>
+        <div style="left: 720px; position: relative; font-size: large;" id="sample"></div>
+        <h2 style="left: 650px; position: relative;">Umidade Sala 1: </h2> 
+        <div style="left: 720px; position: relative; font-size: large;" id="sample0"></div>
+
+        </div> 
+
+        <br><br>
+
+        <div>
+            
+        <h2 style="left: 650px; position: relative;"> Temperatura Sala 2: </h2> 
+        <div style="left: 720px; position: relative; font-size: large;" id="sample1"></div>
+        <h2 style="left: 650px; position: relative;" >Umidade Sala 2: </h2>
+        <div style="left: 720px; position: relative; font-size: large;" id="sample2"></div>
+        </div>
+
+        </div>
+
+        <script>
+            
+        var socket = io();
+        var t2 = [];
+        var t1 = [];
+        var u2 = [];
+        var u1 = [];
+        let vCont = [];
+        let i=0;
+
+        let myDoughnutChart = document.getElementById("myChart").getContext('2d');
+
+        let chart1 = new Chart(myDoughnutChart, {
+            type: 'line',
+            data: {
+                labels: vCont,
+                datasets: [ {
+                    label: 'Temperatura Sala 1',
+                    data: t2,
+                    fill: false,
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                    //backgroundColor: ['#49A9EA']
+                }]
+            }
+        });
+
+        let myChart2 = document.getElementById("myChart2").getContext('2d');
+
+        let chart2 = new Chart(myChart2, {
+            type: 'line',
+            data: {
+                labels: vCont,
+                datasets: [ {
+                    label: 'Umidade Sala 2',
+                    data: u2,
+                    fill: false,
+                    borderColor: 'rgb(179, 181, 198, 1)',
+                    tension: 0.1
+                }]
+            }
+        });
+
+        let myChart3 = document.getElementById("myChart3").getContext('2d');
+
+        let chart3 = new Chart(myChart3, {
+            type: 'line',
+            data: {
+                labels: vCont,
+                datasets: [ {
+                    label: 'Temperatura Sala 1',
+                    data: t1,
+                    fill: false,
+                    borderColor: 'rgb(255, 153, 51)',
+                    tension: 0.1
+                }]
+            }
+        });
+
+        let myChart4 = document.getElementById("myChart4").getContext('2d');
+
+        let chart4 = new Chart(myChart4, {
+            type: 'line',
+            data: {
+                labels: vCont,
+                datasets: [ {
+                    label: 'Umidade Sala 1',
+                    data: u1,
+                    fill: false,
+                    borderColor: 'rgb(51, 204, 51)',
+                    tension: 0.1
+                }]
+            }
+        });
+
+        socket.on('data', function(temp2, umid2, temp1, umid1) {
+            
+
+            t2.push(parseFloat(temp2));
+            u2.push(parseFloat(umid2));
+            t1.push(parseFloat(temp1));
+            u1.push(parseFloat(umid1));
+            i++;
+            let labels1 = vCont.push(i.toString());
+
+            document.getElementById('sample').innerHTML = temp2+" ºC";
+            document.getElementById('sample0').innerHTML = umid2+" %";
+            document.getElementById('sample1').innerHTML = temp1+" ºC";
+            document.getElementById('sample2').innerHTML = umid1+" %";
+
+            chart1.data.datasets[0].data = t2;
+            chart1.data.labels = vCont;
+            chart1.update();
+
+
+            chart2.data.datasets[0].data = u2;
+            chart2.data.labels = vCont;
+            chart2.update();
+
+            chart3.data.datasets[0].data = t1;
+            chart3.data.labels = vCont;
+            chart3.update();
+
+            chart4.data.datasets[0].data = u1;
+            chart4.data.labels = vCont;
+            chart4.update();
+        });
+
+        function updateCh () {
+            chart1.data.datasets[0].data = t2;
+            chart1.data.labels = vCont;
+            chart1.update();
+        };
+        //update.chart1();
+
+        </script>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    
+    </body>
+</html>
